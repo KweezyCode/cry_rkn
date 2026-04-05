@@ -150,7 +150,7 @@ class SingBoxCompiler:
             clean_rules = []
             for item in rules_set:
                 item = str(item).strip()
-                if item.startswith('.'): item = item[1:]
+                if rule_type != 'domain_regex' and item.startswith('.'): item = item[1:]
                 if item: clean_rules.append(item)
             if clean_rules:
                 singbox_rules[rule_type] = sorted(list(set(clean_rules)))
