@@ -5,10 +5,9 @@ on:
     - cron: "0 2 * * *" # Автоматический запуск каждый день в 2:00 ночи (UTC)
   workflow_dispatch: # Позволяет запускать Action вручную по кнопке
   push:
-    paths:
-      - 'alternative.txt'
-      - 'exclude.txt'
-      - 'scripts/**' # Запускаем при коммите новых настроек
+    branches:
+      - master
+      - main
 
 permissions:
   contents: write # Разрешение на создание релизов
