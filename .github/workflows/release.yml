@@ -1,0 +1,61 @@
+name: Build and Release Sing-Box SRS
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # Автоматический запуск каждый день в 2:00 ночи (UTC)
+  workflow_dispatch: # Позволяет запускать Action вручную по кнопке
+  push:
+    paths:
+      - 'alternative.txt'
+      - 'exclude.txt'
+      - 'scripts/**' # Запускаем при коммите новых настроек
+
+permissions:
+  contents: write # Разрешение на создание релизов
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repository
+        uses: actions/checkout@v4
+
+      - name: Checkout Re-filter-lists (Upstream)
+        uses: actions/checkout@v4
+        with:
+          repository: 1andrevich/Re-filter-lists
+          path: Re-filter-lists
+
+      - name: Checkout domain-list-community (Upstream)
+        uses: actions/checkout@v4
+        with:
+          repository: v2fly/domain-list-community
+          path: domain-list-community
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install sing-box
+        run: |
+          bash <(curl -fsSL https://sing-box.app/deb-install.sh)
+          sing-box version
+
+      - name: Prepare folders
+        run: mkdir -p output cache
+
+      - name: Generate SRS and CIDRs
+        run: |
+          python3 scripts/fetch_tg_discord.py
+          python3 scripts/fetch_asn_cidrs.py
+          python3 scripts/compile_intersected.py
+
+      - name: Create or Update Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "latest" # Фиксированный тег (удобно для постоянных ссылок)
+          name: "Sing-box Routing Rules (Auto-update)"
+          body: "Автоматическая ночная сборка актуальных пересечений РКН и доменов сообщества."
+          files: output/*
+          make_latest: true

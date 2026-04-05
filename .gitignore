@@ -1,0 +1,11 @@
+# Сгенерированные файлы
+output/
+cache/
+
+# Чужие репозитории (базы), GitHub Actions будет качать их сам на сервере
+Re-filter-lists/
+domain-list-community/
+
+# Временные файлы
+__pycache__/
+*.pyc
